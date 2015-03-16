@@ -10,12 +10,12 @@ var livestream     = require('level-live-stream');
 var JSONStream     = require('JSONStream');
 
 var routes         = require('routes');
-var methods        = require('methods');
+var methods        = require('http-methods');
 
 /*
  * Push level encoded requests to the database.
  */
-LevelOverHttp.prototype.push    = function(db) {
+function push(db) {
 
     var self = this;
 
@@ -30,7 +30,7 @@ LevelOverHttp.prototype.push    = function(db) {
  * Live stream json encoded items from a level database.  Users may specify
  * options in the http header corresponding to the level retrieval options (e.g. gt, lt, etc...)
  */
-LevelOverHttp.prototype.live = function(db) {
+function live(db) {
 
     var self = this;
 
@@ -57,7 +57,7 @@ LevelOverHttp.prototype.live = function(db) {
  * Store json encoded values to the level db. If a key is not given, then
  * generate from the system time.
  */
-LevelOverHttp.prototype.store = function(db) {
+function store(db) {
 
     var self = this;
 

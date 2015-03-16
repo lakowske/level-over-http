@@ -1,0 +1,35 @@
+{
+  "name": "level-over-http",
+  "version": "0.0.1",
+  "description": "An interface to level db over http",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lakowske/level-over-http.git"
+  },
+  "keywords": [
+    "node-levelup",
+    "level",
+    "db",
+    "http",
+    "query",
+    "store"
+  ],
+  "author": "Seth Lakowske",
+  "license": "BSD3",
+  "bugs": {
+    "url": "https://github.com/lakowske/level-over-http/issues"
+  },
+  "homepage": "https://github.com/lakowske/level-over-http",
+  "dependencies": {
+    "JSONStream": "^0.10.0",
+    "http-methods": "^1.0.0",
+    "level": "^0.18.0",
+    "level-live-stream": "^1.4.9",
+    "routes": "^2.0.0",
+    "through": "^2.3.6"
+  }
+}
