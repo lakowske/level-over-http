@@ -31,5 +31,10 @@
     "level-live-stream": "^1.4.9",
     "routes": "^2.0.0",
     "through": "^2.3.6"
+  },
+  "devDependencies": {
+    "freeport": "^1.0.4",
+    "rimraf": "^2.3.2",
+    "tape": "^3.5.0"
   }
 }

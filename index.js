@@ -5,23 +5,31 @@
  * serve requests from a level db.
  */
 
-var through        = require('through');
-var livestream     = require('level-live-stream');
-var JSONStream     = require('JSONStream');
+var through          = require('through');
+var livestream       = require('level-live-stream');
+var JSONStream       = require('JSONStream');
+var timestamper      = require('lexicographic-timestamp').timestampStream(16, 9, 'key');
 
 var routes         = require('routes');
 var methods        = require('http-methods');
 
 /*
- * Push level encoded requests to the database.
+ * input items to the database and output a status.
  */
 function push(db) {
 
-    var self = this;
-
     return through(function(levelRequest) {
-        db.put(levelRequest.key, levelRequest.value);
-        this.queue(levelRequest);
+
+        var self = this;
+
+        db.put(levelRequest.key, levelRequest.value, {}, function(error) {
+            if (error) {
+                self.queue({result:'error', key: levelRequest.key, msg: error});
+            } else {
+                self.queue({result:'success', key: levelRequest.key});
+            }
+        });
+
     })
 
 }
@@ -41,11 +49,11 @@ function live(db) {
         if (options.tail === 'false') {options.tail = false}
 
         var dbStream = livestream(db, options);
+        var stringify = JSONStream.stringify(false);
+
         res.statusCode = 200;
 
-        dbStream.on('data', function(data) {
-            res.write(JSON.stringify(data) + '\n');
-        });
+        dbStream.pipe(stringify).pipe(res);
 
         dbStream.on('end', function() { console.log('donsoo') });
 
@@ -59,35 +67,12 @@ function live(db) {
  */
 function store(db) {
 
-    var self = this;
-
     return function(req, res, params) {
         //We'll use JSONStream to parse json encoded items on the request stream
         var parseify = new JSONStream.parse();
+        var stringify = JSONStream.stringify(false);
 
-        req.pipe(parseify);
-
-        //When a (key/)value is parsed, put it on the level db
-        parseify.on('data', function(dbrequest) {
-
-            var key    = dbrequest.key;
-
-            if (!dbrequest.key) {
-                key = new Date().getTime();
-            }
-
-            var value  = dbrequest.value;
-
-            db.put(key, value, {}, function(error) {
-                if (error) {
-                    res.write(JSON.stringify({result:'error', key: key, msg: error}));
-                } else {
-                    res.write(JSON.stringify({result:'success', key: key}));
-                }
-                res.end();
-            });
-
-        });
+        req.pipe(parseify).pipe(timestamper).pipe(push(db)).pipe(stringify).pipe(res);
     }
 }
 
