@@ -31,17 +31,21 @@ test('put values in a level database over http', function(t) {
             res.pipe(process.stdout);
 
             res.on('end', function() {
-
                 server.close();
+
                 db.close(function(er) {
                     if (er) throw er;
+                    /*
                     rimraf(path.join(__dirname, 'test.db'), function(er) {
                         if (er) throw er;
                     })
+                    */
+
+                    t.end();
+
                 });
 
 
-                t.end();
 
             })
         })

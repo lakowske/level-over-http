@@ -24,6 +24,7 @@ function push(db) {
 
         db.put(levelRequest.key, levelRequest.value, {}, function(error) {
             if (error) {
+                console.log('encountered an error while putting ' + JSON.stringify(levelRequest) + ' on the database: ' + error);
                 self.queue({result:'error', key: levelRequest.key, msg: error});
             } else {
                 self.queue({result:'success', key: levelRequest.key});
