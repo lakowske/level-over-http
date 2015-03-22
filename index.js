@@ -5,7 +5,7 @@
  * serve requests from a level db.
  */
 
-var through          = require('through');
+var through2         = require('through2');
 var livestream       = require('level-live-stream');
 var JSONStream       = require('JSONStream');
 var timestamper      = require('lexicographic-timestamp').timestampStream(16, 9, 'key');
@@ -18,17 +18,19 @@ var methods        = require('http-methods');
  */
 function push(db) {
 
-    return through(function(levelRequest) {
+    return through2.obj(function(levelRequest, enc, cb) {
 
         var self = this;
 
-        db.put(levelRequest.key, levelRequest.value, {}, function(error) {
+        db.put(levelRequest.key, levelRequest.value, {sync:true}, function(error) {
             if (error) {
-                console.log('encountered an error while putting ' + JSON.stringify(levelRequest) + ' on the database: ' + error);
-                self.queue({result:'error', key: levelRequest.key, msg: error});
+                console.log('encountered an error while putting ' + JSON.stringify(levelRequest) + ' on the database: '
+                            + error);
+                self.push({result:'error', key: levelRequest.key, msg: error});
             } else {
-                self.queue({result:'success', key: levelRequest.key});
+                self.push({result:'success', key: levelRequest.key});
             }
+            cb();
         });
 
     })
@@ -70,11 +72,25 @@ function store(db) {
 
     return function(req, res, params) {
         //We'll use JSONStream to parse json encoded items on the request stream
-        var parseify = new JSONStream.parse();
+        var parseify  = new JSONStream.parse();
         var stringify = JSONStream.stringify(false);
+        var dbify     = push(db);
 
-        req.pipe(parseify).pipe(timestamper).pipe(push(db)).pipe(stringify).pipe(res);
+        var strungout = req.pipe(parseify).pipe(timestamper).pipe(dbify).pipe(stringify);//.pipe(res);
+        strungout.pipe(res);
+        req.on('end', function() {
+            console.log('no more puts. no more data');
+
+        })
+        res.on('finish', function() {
+            console.log('all finished');
+            res.end('');
+            //res.end('');
+        })
+
+        //strungout.pipe(res);
     }
+
 }
 
 /*
