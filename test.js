@@ -39,6 +39,8 @@ function get(headers, port, onResponse) {
     var req = http.request(options, onResponse);
 
     req.end();
+
+    return req;
 }
 
 function setup(dbname, onSetup) {
@@ -80,48 +82,55 @@ test('can push values through a level database', function(t) {
 
         rimraf(path.join(__dirname, 'test.db'), function(er) {
             if (er) throw er;
+            console.log('');
             t.end();
         })
 
     })
 
 })
-/*
-test('put values in a level database over http', function(t) {
 
-    var dbname = './test1.db';
 
-    setup(dbname, function(db, server, port) {
-
-        put('{"value":"hello wisconsin"}', port, function(res) {
-            res.pipe(process.stdout);
-            res.on('end', function() {
-                console.log('done');
-                cleanup(db, server, t.end, dbname);
-            })
-
-        });
-
-    });
-
-})
-*/
 test('request value from a level database over http', function(t) {
 
     var dbname = './test2.db';
 
     setup(dbname, function(db, server, port) {
 
-        put('{"value":"hello wisconsin"}', port, function(res) {
+        put('{"value":"hello wisconsin"}\n', port, function(res) {
 
-            get({}, port, function(res) {
+            var req = get({}, port, function(res) {
                 console.log('results:');
                 res.pipe(process.stdout);
-
-                cleanup(db, server, dbname, t.end);
+                cleanup(db, server, dbname, function() {
+                    req.abort()
+                    t.end()
+                });
             })
 
         })
     })
+
+})
+
+test('put values in a level database over http', function(t) {
+
+    var dbname = './test1.db';
+
+    setup(dbname, function(db, server, port) {
+
+        put('{"value":"hello wisconsin"}\n', port, function(res) {
+            res.pipe(process.stdout);
+            console.log('in response');
+            res.on('end', function() {
+                console.log('done');
+                cleanup(db, server, dbname, function() {
+                    t.end();
+                });
+            })
+
+        });
+
+    });
 
 })

@@ -8,10 +8,10 @@
 var through2         = require('through2');
 var livestream       = require('level-live-stream');
 var JSONStream       = require('JSONStream');
-var timestamper      = require('lexicographic-timestamp').timestampStream(16, 9, 'key');
+var timestamp        = require('lexicographic-timestamp');
 
-var routes         = require('routes');
-var methods        = require('http-methods');
+var routes           = require('routes');
+var methods          = require('http-methods');
 
 /*
  * input items to the database and output a status.
@@ -72,23 +72,17 @@ function store(db) {
 
     return function(req, res, params) {
         //We'll use JSONStream to parse json encoded items on the request stream
-        var parseify  = new JSONStream.parse();
-        var stringify = JSONStream.stringify(false);
-        var dbify     = push(db);
+        var parseify    = new JSONStream.parse();
+        var stringify   = JSONStream.stringify(false);
+        var timestamper = timestamp.timestampStream(16, 9, 'key');
+        var dbify       = push(db);
 
-        var strungout = req.pipe(parseify).pipe(timestamper).pipe(dbify).pipe(stringify);//.pipe(res);
-        strungout.pipe(res);
-        req.on('end', function() {
-            console.log('no more puts. no more data');
+        req.pipe(parseify).pipe(timestamper).pipe(dbify).pipe(stringify).pipe(res);
 
-        })
         res.on('finish', function() {
-            console.log('all finished');
             res.end('');
-            //res.end('');
         })
 
-        //strungout.pipe(res);
     }
 
 }
