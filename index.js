@@ -22,7 +22,7 @@ function push(db) {
 
         var self = this;
 
-        db.put(levelRequest.key, levelRequest.value, {sync:true}, function(error) {
+        db.put(levelRequest.key, levelRequest.value, {}, function(error) {
             if (error) {
                 console.log('encountered an error while putting ' + JSON.stringify(levelRequest) + ' on the database: '
                             + error);

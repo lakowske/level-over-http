@@ -77,16 +77,22 @@ test('can push values through a level database', function(t) {
 
     dbify.write({key:'hi', value:"wisconsin"});
 
-    db.close(function(er) {
-        if (er) throw er;
+    dbify.on('end', function() {
 
-        rimraf(path.join(__dirname, 'test.db'), function(er) {
+        db.close(function(er) {
             if (er) throw er;
-            console.log('');
-            t.end();
+
+            rimraf(path.join(__dirname, 'test.db'), function(er) {
+                if (er) throw er;
+                console.log('');
+                t.end();
+            })
+
         })
 
     })
+
+    dbify.end();
 
 })
 
