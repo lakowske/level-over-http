@@ -26,6 +26,8 @@ function put(value, port, onResponse) {
     })
 
     req.end(value);
+
+    return req;
 }
 
 function get(headers, port, onResponse) {
@@ -119,12 +121,13 @@ test('put values in a level database over http', function(t) {
 
     setup(dbname, function(db, server, port) {
 
-        put('{"value":"hello wisconsin"}\n', port, function(res) {
+        var req = put('{"value":"hello wisconsin"}\n', port, function(res) {
             res.pipe(process.stdout);
             console.log('in response');
             res.on('end', function() {
-                console.log('done');
                 cleanup(db, server, dbname, function() {
+                    console.log('done');
+                    req.abort();
                     t.end();
                 });
             })
