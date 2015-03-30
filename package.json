@@ -29,6 +29,7 @@
     "http-methods": "^1.0.0",
     "level": "^0.18.0",
     "level-live-stream": "^1.4.9",
+    "lexicographic-timestamp": "0.0.1",
     "routes": "^2.0.0",
     "through": "^2.3.6",
     "through2": "^0.6.3"
