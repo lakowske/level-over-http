@@ -1,6 +1,6 @@
 {
   "name": "level-over-http",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An interface to level db over http",
   "main": "index.js",
   "scripts": {
