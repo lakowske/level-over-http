@@ -1,6 +1,6 @@
 level-over-http
 ===============
-Serves and stores items to a leveldb database over http.
+Serves and stores items to a level database over http.
 
 level-over-http can live stream a level database and can accept the same options defined in the LevelDOWN API.
 
