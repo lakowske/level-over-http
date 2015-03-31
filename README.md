@@ -2,9 +2,9 @@ level-over-http
 ===============
 Serves and stores items to a level db over the http protocol.
 
-level-over-http can live stream a level database and accept the same options defined in the LevelDOWN API.
+level-over-http can live stream a level database and accepts the same options defined in the LevelDOWN API.
 
-Here is an example of serving a leveldb named 'test.db' over http://localhost:3000/test
+Here is an example of serving 'test.db' over http://localhost:3000/test
 
 ```js
 var level       = require('level');
@@ -15,7 +15,7 @@ var db   = level('test.db');
 var server = http.createServer(levelHttp.serve('/test', db)).listen(3000);
 ```
 
-To push something to the leveldb you may POST
+To push something to the leveldb, make a POST request.
 
 ```js
     var options = {
@@ -36,13 +36,13 @@ To push something to the leveldb you may POST
     req.end('{"value":"hello wisconsin"}\n');
 ```
 
-I got the following response streamed to stdout
+The following response is streamed to stdout.
 
 ```
 {"result":"success","key":"0001427765362253.000000000"}
 ```
 
-To get something from the leveldb you may GET
+To live stream something from the leveldb, make a GET request.
 
 ```js
     var options = {
@@ -57,7 +57,7 @@ To get something from the leveldb you may GET
     req.end();
 ```
 
-Notice the headers object can contain the same options defined in the LevelDOWN API.
+Notice the headers object can contain the same options as defined in the LevelDOWN API.
 
 ```
 {"key":"0001427765362229.000000000","value":"hello wisconsin"}
