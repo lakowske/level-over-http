@@ -1,8 +1,8 @@
 level-over-http
 ===============
-Serves and stores items to a level db over the http protocol.
+Serves and stores items to a leveldb database over http.
 
-level-over-http can live stream a level database and accepts the same options defined in the LevelDOWN API.
+level-over-http can live stream a level database and can accept the same options defined in the LevelDOWN API.
 
 Here is an example of serving 'test.db' over http://localhost:3000/test
 
@@ -49,7 +49,7 @@ To live stream something from the leveldb, make a GET request.
         host : 'localhost',
         port : 3000,
         path : '/test',
-        headers : { gt : 0001427765362253.000000000 }
+        headers : { gt : '0001427765362253.000000000' }
     }
 
     var req = http.request(options, onResponse);
