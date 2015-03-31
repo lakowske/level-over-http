@@ -42,3 +42,25 @@ I got the following response streamed to stdout
 {"result":"success","key":"0001427765362253.000000000"}
 ```
 
+To get something from the leveldb you may GET
+
+```js
+    var options = {
+        host : 'localhost',
+        port : 3000,
+        path : '/test',
+        headers : { gt : 0001427765362253.000000000 }
+    }
+
+    var req = http.request(options, onResponse);
+
+    req.end();
+```
+
+Notice the headers object can contain the same options defined in the LevelDOWN API.
+
+```
+{"key":"0001427765362229.000000000","value":"hello wisconsin"}
+```
+
+level-over-http makes use of [lexicographic-timestamp](http://github.com/lakowske/lexicographic-timestamp) for key generation.
