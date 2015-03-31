@@ -63,4 +63,4 @@ Notice the headers object can contain the same options as defined in the LevelDO
 {"key":"0001427765362229.000000000","value":"hello wisconsin"}
 ```
 
-level-over-http makes use of [lexicographic-timestamp](http://github.com/lakowske/lexicographic-timestamp) for key generation.
+level-over-http uses [lexicographic-timestamp](http://github.com/lakowske/lexicographic-timestamp) for key generation.
