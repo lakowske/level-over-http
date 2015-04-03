@@ -21,8 +21,9 @@ function push(db) {
     return through2.obj(function(levelRequest, enc, cb) {
 
         var self = this;
-
+        console.log(levelRequest);
         db.put(levelRequest.key, levelRequest.value, {}, function(error) {
+
             if (error) {
                 console.log('encountered an error while putting ' + JSON.stringify(levelRequest) + ' on the database: '
                             + error);
@@ -74,11 +75,12 @@ function store(db) {
         //We'll use JSONStream to parse json encoded items on the request stream
         var parseify    = new JSONStream.parse();
         var stringify   = JSONStream.stringify(false);
-        var timestamper = timestamp.timestampStream(16, 9, 'key');
+        var timestamper = timestampStream();
         var dbify       = push(db);
 
+        console.log('in store');
         req.pipe(parseify).pipe(timestamper).pipe(dbify).pipe(stringify).pipe(res);
-
+        req.pipe(process.stdout);
         res.on('finish', function() {
             res.end('');
         })
@@ -102,7 +104,12 @@ function serve(route, db) {
     }
 }
 
-module.exports.store = store;
-module.exports.live  = live;
-module.exports.push  = push;
-module.exports.serve = serve;
+function timestampStream() {
+    return timestamp.timestampStream(16, 9, 'key');
+}
+
+module.exports.store     = store;
+module.exports.live      = live;
+module.exports.push      = push;
+module.exports.serve     = serve;
+module.exports.timestampStream = timestampStream;
