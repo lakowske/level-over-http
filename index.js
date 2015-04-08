@@ -21,7 +21,6 @@ function push(db) {
     return through2.obj(function(levelRequest, enc, cb) {
 
         var self = this;
-        console.log(levelRequest);
         db.put(levelRequest.key, levelRequest.value, {}, function(error) {
 
             if (error) {
@@ -36,6 +35,42 @@ function push(db) {
 
     })
 
+}
+
+function levelerStream() {
+    return through2.obj(function(levelRequest, enc, cb) {
+        this.push(leveler(levelRequest));
+        cb();
+    });
+}
+
+/*
+ * If a given object looks like a level request, then do nothing.  Otherwise, create a new
+ * object in level form.
+ */
+function leveler(object) {
+    var keys     = Object.keys(object);
+    var value    = object.value;
+    var keyValue = object.key;
+    var type     = object.type;
+
+    if (value && keys.length === 1) {
+        return object;
+    }
+
+    if (value && keyValue && keys.length === 2) {
+        return object;
+    }
+
+    if (value && type && keys.length === 2) {
+        return object;
+    }
+
+    if (value && keyValue && type && keys.length === 3) {
+        return object;
+    }
+
+    return {value : object};
 }
 
 /*
@@ -73,14 +108,14 @@ function store(db) {
 
     return function(req, res, params) {
         //We'll use JSONStream to parse json encoded items on the request stream
-        var parseify    = new JSONStream.parse();
+        var parseify    = new JSONStream.parse(true);
         var stringify   = JSONStream.stringify(false);
+        var levelify    = levelerStream();
         var timestamper = timestampStream();
         var dbify       = push(db);
 
-        console.log('in store');
-        req.pipe(parseify).pipe(timestamper).pipe(dbify).pipe(stringify).pipe(res);
-        req.pipe(process.stdout);
+        req.pipe(parseify).pipe(levelify).pipe(timestamper).pipe(dbify).pipe(stringify).pipe(res);
+
         res.on('finish', function() {
             res.end('');
         })
@@ -108,8 +143,10 @@ function timestampStream() {
     return timestamp.timestampStream(16, 9, 'key');
 }
 
-module.exports.store     = store;
-module.exports.live      = live;
-module.exports.push      = push;
-module.exports.serve     = serve;
+module.exports.store           = store;
+module.exports.live            = live;
+module.exports.push            = push;
+module.exports.serve           = serve;
+module.exports.leveler         = leveler;
+module.exports.levelerStream   = levelerStream;
 module.exports.timestampStream = timestampStream;

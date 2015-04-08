@@ -69,6 +69,40 @@ function cleanup(db, server, dbname, onClean) {
     });
 }
 
+test('can level an arbitrary object', function(t) {
+
+    var object = {method: 'GET', url: '/something/fun'};
+
+    var leveled = levelHttp.leveler(object);
+    t.ok(leveled.value)
+
+    object.value = 'some string value';
+    leveled = levelHttp.leveler(object);
+    t.notEqual(leveled.value, 'some string value');
+
+    object.key   = 'to opening the lock';
+    leveled = levelHttp.leveler(object);
+    t.notEqual(leveled.value, 'to opening the lock');
+
+    var prelevelized = {value:object}
+    leveled = levelHttp.leveler(prelevelized);
+    t.deepEqual(leveled.value, object, 'were deep equal');
+
+    var prelevelized = {type:'put', value:object}
+    leveled = levelHttp.leveler(prelevelized);
+    t.deepEqual(leveled.value, object, 'were deep equal');
+
+    var prelevelized = {key:'hi', value:object}
+    leveled = levelHttp.leveler(prelevelized);
+    t.deepEqual(leveled.value, object, 'were deep equal');
+
+    var prelevelized = {key:'hi', type:'put', value:object}
+    leveled = levelHttp.leveler(prelevelized);
+    t.deepEqual(leveled.value, object, 'were deep equal');
+
+    t.end();
+})
+
 test('can push values through a level database', function(t) {
     var db   = level('./test.db');
 
@@ -108,7 +142,7 @@ test('request value from a level database over http', function(t) {
         put('{"value":"hello wisconsin"}\n', port, function(res) {
 
             var req = get({}, port, function(res) {
-                console.log('results:');
+                console.log('result:');
                 res.pipe(process.stdout);
                 cleanup(db, server, dbname, function() {
                     req.abort()
